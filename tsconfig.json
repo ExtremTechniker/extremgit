@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "alwaysStrict": true,
+        "declaration": true,
+        "sourceMap": true,
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "target": "ES2017",
+        "outDir": "lib/"
+    }
+}
