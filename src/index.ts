@@ -4,7 +4,9 @@ import fs = require('fs/promises');
 import path = require('path');
 import bodyParser = require('body-parser');
 import { AddressInfo } from 'net';
-import { exec, spawn } from "child_process";
+import { exec } from "child_process";
+
+require("dotenv").config();
 
 const app = express();
 const gitPath = process.env.GIT_HOME_PATH || "/Users/robert/.gitdeploy";
@@ -27,7 +29,7 @@ app.post("/gitRepo", bodyParser.json(), async (req, res, next) => {
     })
     
     try {
-        await fs.mkdir(gitPath);
+        await fs.mkdir(gitPath, {recursive: true});
     } catch (err) {
         if(!(err && err.code == "EEXIST"))
             return next(new Error(err));
@@ -47,7 +49,7 @@ app.post("/gitRepo", bodyParser.json(), async (req, res, next) => {
                     cwd: path.join(gitPath)
                 })
 
-                git.on("close", code => {
+                git.on("close", () => {
                     return res.json({
                         status: "ok",
                         message: "Git Repo initalised"
@@ -64,7 +66,7 @@ app.post("/gitRepo", bodyParser.json(), async (req, res, next) => {
     }
 })
 
-app.delete("/gitRepo", bodyParser.json(), async (req, res, next) => {
+app.delete("/gitRepo", bodyParser.json(), async (req, res, _next) => {
     const { name } = req.body;
     if(!name) return res.json({
         status: "error",
@@ -114,4 +116,4 @@ function errorHandler(err: any, _req: express.Request, res: express.Response, _n
 
 app.use(notFound, errorHandler);
 
-const server = app.listen(5000, () => console.log(`Listening on http://localhost:${(server.address() as AddressInfo).port}`))
+const server = app.listen(process.env.PORT || 5000, () => console.log(`Listening on http://localhost:${(server.address() as AddressInfo).port}`))
